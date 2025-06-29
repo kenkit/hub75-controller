@@ -1,4 +1,4 @@
-module spi_slave #(parameter BITS_PER_PIXEL=0)
+module spi_slave #(parameter BITS_PER_PIXEL=16)
     (
         input reset,
         input spi_clk,
@@ -20,7 +20,7 @@ module spi_slave #(parameter BITS_PER_PIXEL=0)
             bit_counter <= bit_counter - 5'b00001;
         end
     end
-
+		
     assign data = { tmp_data[4*8-1:(4*8)-BITS_PER_RGB],
                     tmp_data[3*8-1:(3*8)-BITS_PER_RGB],
                     tmp_data[2*8-1:(2*8)-BITS_PER_RGB],

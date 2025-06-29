@@ -1,4 +1,4 @@
-module controller #(parameter BITS_PER_PIXEL=0)
+module controller #(parameter BITS_PER_PIXEL=16)
     (
         input n_reset,
         input clk,
@@ -13,7 +13,7 @@ module controller #(parameter BITS_PER_PIXEL=0)
         input spi_mosi,
         input spi_ss,
         output spi_miso,
-        output reg user_led
+        output wire user_led
     );
 
     localparam BITS_PER_RGB = BITS_PER_PIXEL / 4;
@@ -157,7 +157,7 @@ module controller #(parameter BITS_PER_PIXEL=0)
     // So the LED can be used to show that the FPGA has a design loaded
     reg [23:0] counter = 24'h000000;
     always @ (posedge slow_clk) begin
-        counter <= counter + 1;
+        counter <= counter + 24'd1;
     end
     assign user_led = counter[23];
 endmodule

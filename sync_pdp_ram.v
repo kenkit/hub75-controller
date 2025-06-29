@@ -1,4 +1,4 @@
-module sync_pdp_ram #(parameter BITS_PER_PIXEL=0)
+module sync_pdp_ram #(parameter BITS_PER_PIXEL=16)
     (
         input                       buffer_toggle,
         input                       write_clk,
@@ -12,8 +12,8 @@ module sync_pdp_ram #(parameter BITS_PER_PIXEL=0)
         input                       read_en
     );
 
-    reg [BITS_PER_PIXEL-1:0] mem_top [64*16*2];
-    reg [BITS_PER_PIXEL-1:0] mem_bottom [64*16*2];
+    reg [BITS_PER_PIXEL-1:0] mem_top [(64*16*2)-1:0];
+    reg [BITS_PER_PIXEL-1:0] mem_bottom [(64*16*2)-1:0];
     reg [BITS_PER_PIXEL-1:0] tmp_data_top;
     reg [BITS_PER_PIXEL-1:0] tmp_data_bottom;
 

@@ -1,52 +1,48 @@
-IVERILOG = iverilog -g 2012 -g io-range-error -Wall -Ptb.BITS_PER_PIXEL=$(BITS_PER_PIXEL)
-VVP = vvp
-
-YOSYS = yosys
-PIN_DEF = constraints.pcf
-DEVICE = up5k
-
-NEXTPNR = nextpnr-ice40
-ICEPACK = icepack
-ICETIME = icetime
-ICEPROG = iceprog
-
-VERILATOR_LINT = verilator --lint-only --timing -GBITS_PER_PIXEL=$(BITS_PER_PIXEL)
-
+all: build/blink.svf build/blink.bit build/controller.json
 # Configuration
 BITS_PER_PIXEL = 16
 
 
-all: sync_pdp_ram spi_slave controller
+SYNTH_SRCS=controller.v sync_pdp_ram.v spi_slave.v
+SIM_SRCS=blink_tb.v blink.v 
 
-sync_pdp_ram: sync_pdp_ram.v sync_pdp_ram_tb.v
-	$(VERILATOR_LINT) $^
-	$(IVERILOG) -o $@ $^
-spi_slave: spi_slave.v spi_slave_tb.v
-	$(VERILATOR_LINT) $^
-	$(IVERILOG) -o $@ $^
-controller: controller.v controller_tb.v sync_pdp_ram.v spi_slave.v
-	$(VERILATOR_LINT) $^
-	$(IVERILOG) -o $@ $^
+ifndef V70
+	//PACKAGE=CABGA381
+    //LFP=blink_v61.lpf
+		PACKAGE=CABGA256
+    LFP=top.lpf
+else
+	PACKAGE=CABGA256
+    LFP=top.lpf
+endif
 
-sync_pdp_ram-tests: sync_pdp_ram
-	$(VVP) sync_pdp_ram
-spi_slave-tests: spi_slave
-	$(VVP) spi_slave
-controller-tests: controller
-	$(VVP) controller
+build/controller.json:
+	yosys -p 'chparam -set BITS_PER_PIXEL $(BITS_PER_PIXEL);' \
+		-p 'read_verilog controller.v sync_pdp_ram.v spi_slave.v;' \
+		-p 'synth_ice40  -top controller -abc9 -json $@' $^
+build/blink.config: build/controller.json $(LPF)
+	nextpnr-ecp5 --25k --package $(PACKAGE) --speed 6 --lpf $(LFP) --json build/controller.json --textcfg build/blink.config --freq 25
 
-tests: sync_pdp_ram-tests spi_slave-tests controller-tests
+build/blink.svf: build/blink.config
+	ecppack --compress --input $< --svf $@
 
+build/blink.bit: build/blink.config
+	ecppack --compress --input $< --bit $@
 
-controller.json: controller.v sync_pdp_ram.v spi_slave.v
-	$(YOSYS) -p 'chparam -set BITS_PER_PIXEL $(BITS_PER_PIXEL)' \
-		-p 'synth_ice40 -top controller -json $@' $^
+flash: build/blink.bit
+	# ERASES THE DEFAULT CONTENTS OF THE SPI FLASH!
+	openFPGALoader --vid 0x0403 --pid 0x6014 --unprotect-flash -f build/blink.bit
+flash_sram:
+	openFPGALoader -b colorlight -c usb-blaster --write-sram build/blink.bit --skip-reset
+visual:
+	yosys -p 'read_verilog $(SYNTH_SRCS); synth ; show -colors 1 -format dot -prefix diagram'
 
-controller.asc: controller.json
-	$(NEXTPNR) --up5k --package sg48 --pcf $(PIN_DEF) --json controller.json --asc $@
-
-controller.bin: controller.asc
-	$(ICEPACK) $^ $@
-
+flash_backup:
+	#ecpprog -R 2M colorlight_backup.bit
+	openFPGALoader -b colorlight  -c usb-blaster --verbose  --dump-flash  colorlight_backup.bit --file-size 4096000
+check_reset:
+	openFPGALoader -b colorlight  -c usb-blaster --detect -f
 clean:
-	rm -vf sync_pdp_ram spi_slave controller *.vcd *.json *.asc *.bin
+	rm -f build/*
+
+
