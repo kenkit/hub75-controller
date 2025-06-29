@@ -1,0 +1,52 @@
+
+LOCATE COMP "n_reset"         SITE "P6";
+IOBUF PORT  "n_reset"          IO_TYPE=LVCMOS33;
+FREQUENCY PORT "clk"          25 MHZ;
+
+LOCATE COMP "user_led"               SITE "T6";
+IOBUF PORT  "user_led"           IO_TYPE=LVCMOS33;
+
+LOCATE COMP "button"            SITE "R7";
+LOCATE COMP "phy_rst_"          SITE "P5";
+
+
+LOCATE COMP "spi_clk"               SITE "C4";
+IOBUF PORT  "spi_clk"           IO_TYPE=LVCMOS33;
+LOCATE COMP "spi_mosi"               SITE "C2";
+IOBUF PORT  "spi_mosi"           IO_TYPE=LVCMOS33;
+LOCATE COMP "spi_miso"               SITE "C1";
+IOBUF PORT  "spi_miso"           IO_TYPE=LVCMOS33;
+LOCATE COMP "spi_ss"               SITE "D1";
+IOBUF PORT  "spi_ss"           IO_TYPE=LVCMOS33;
+
+
+LOCATE COMP "hub75_red[0]"               SITE "F1";
+IOBUF PORT  "hub75_red[0]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_green[0]"               SITE "F2";
+IOBUF PORT  "hub75_green[0]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_blue[0]"               SITE "G2";
+IOBUF PORT  "hub75_blue[0]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_red[1]"               SITE "G1";
+IOBUF PORT  "hub75_red[1]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_green[1]"               SITE "H2";
+IOBUF PORT  "hub75_green[1]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_blue[1]"               SITE "H3";
+IOBUF PORT  "hub75_blue[1]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_addr[0]"               SITE "N5";
+IOBUF PORT  "hub75_addr[0]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_addr[1]"               SITE "N3";
+IOBUF PORT  "hub75_addr[1]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_addr[2]"               SITE "P3";
+IOBUF PORT  "hub75_addr[2]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_addr[3]"               SITE "P4";
+IOBUF PORT  "hub75_addr[3]"           IO_TYPE=LVCMOS33;
+LOCATE COMP "E"                        SITE "N4";
+IOBUF PORT  "E"                         IO_TYPE=LVCMOS33;
+
+LOCATE COMP "hub75_clk"               SITE "M3";
+IOBUF PORT  "hub75_clk"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_latch"               SITE "N1";
+IOBUF PORT  "hub75_latch"           IO_TYPE=LVCMOS33;
+LOCATE COMP "hub75_oe"               SITE "M4";
+IOBUF PORT  "hub75_oe"           IO_TYPE=LVCMOS33;
+
