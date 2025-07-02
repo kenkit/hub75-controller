@@ -163,7 +163,7 @@ integer x_count;
             end
         end
     end
-integer y_count,x_count  ;
+integer y_count=0,x_count=0;
     // Watch for the top addr bit going low, this indicates the end of the frame
     always @ (negedge hub75_addr[3]) begin
         for (y_count = 0; y_count < 32; y_count=y_count+1) begin

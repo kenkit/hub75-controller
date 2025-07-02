@@ -24,7 +24,11 @@ build/blink.config: build/controller.json $(LPF)
 	nextpnr-ecp5 --25k --package $(PACKAGE) --speed 6 --lpf $(LFP) --json build/controller.json --textcfg build/blink.config --freq 25
 
 build/blink.svf: build/blink.config
-	ecppack --compress --input $< --svf $@
+	ecppack --compress --verbose --input $< --svf $@
+	sed -i '27s/.*/	TDO  (0601f10)/' $@
+
+jtag_svf: build/blink.svf
+	openocd -f colorlight_5a75b.cfg -c "svf -progress $<; exit"
 
 build/blink.bit: build/blink.config
 	ecppack --compress --input $< --bit $@
@@ -32,14 +36,16 @@ build/blink.bit: build/blink.config
 flash: build/blink.bit
 	# ERASES THE DEFAULT CONTENTS OF THE SPI FLASH!
 	openFPGALoader --vid 0x0403 --pid 0x6014 --unprotect-flash -f build/blink.bit
-flash_sram:
-	openFPGALoader -b colorlight -c usb-blaster --write-sram build/blink.bit --skip-reset
+flash_sram: build/blink.svf
+	openocd -f colorlight_5a75b.cfg -c "svf -quiet -progress $<; exit"
+	#openFPGALoader -b colorlight -c usb-blaster --write-sram build/blink.bit --skip-reset
 visual:
 	yosys -p 'read_verilog $(SYNTH_SRCS); synth ; show -colors 1 -format dot -prefix diagram'
 
 flash_backup:
 	#ecpprog -R 2M colorlight_backup.bit
 	openFPGALoader -b colorlight  -c usb-blaster --verbose  --dump-flash  colorlight_backup.bit --file-size 4096000
+
 check_reset:
 	openFPGALoader -b colorlight  -c usb-blaster --detect -f
 clean:
