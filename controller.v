@@ -68,7 +68,7 @@ module controller #(parameter BITS_PER_PIXEL=16)
 
     reg run_hub75_clk = 1'b0;
     integer bit_count = 0;
-    reg [9:0] oe_strobe_column_addr = 10'b0000000000;
+    reg [9:0] oe_strobe_column_addr =10'b0000011111;
     always @ (posedge reset, negedge slow_clk) begin
         if (reset == 1'b1) begin
             run_hub75_clk <= 1'b0;
@@ -144,10 +144,7 @@ module controller #(parameter BITS_PER_PIXEL=16)
         end
     end
 
-    wire _unused_ok = &{1'b0,
-        read_data_bottom[3:0],
-        read_data_top[3:0],
-        1'b0};
+   // wire _unused_ok = &{1'b0,read_data_bottom[3:0],read_data_top[3:0],1'b0};
 
     assign hub75_addr = row_addr;
     assign hub75_clk = run_hub75_clk ? slow_clk : 1'b0;

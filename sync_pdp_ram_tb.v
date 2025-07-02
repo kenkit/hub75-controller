@@ -1,4 +1,4 @@
-module tb;
+module sync_pdp_ram_tb;
     parameter BITS_PER_PIXEL = 32;
 
     reg buffer_toggle;
@@ -40,7 +40,7 @@ module tb;
         $readmemh(test_bars_filename, input_image);
 
         write_en = 1;
-        for (i = 0; i < 64 * 32; i++) begin
+        for (i = 0; i < 64 * 32; i=i+1) begin
             #period;
             write_data = input_image[i];
             write_clk = 1'b0;
@@ -55,7 +55,7 @@ module tb;
         write_en = 1'b0;
         read_en = 1'b1;
 
-        for (i = 0; i < 64 * (32 / 2); i++) begin
+        for (i = 0; i < 64 * (32 / 2); i=i+1) begin
             read_clk = 1'b1;
             #period;
 

@@ -1,4 +1,4 @@
-module tb #(BITS_PER_PIXEL=0);
+module  controller_tb #(BITS_PER_PIXEL=0);
     reg n_reset;
     reg clk;
     wire [1:0] hub75_red;
@@ -11,10 +11,11 @@ module tb #(BITS_PER_PIXEL=0);
     reg spi_clk;
     reg spi_mosi;
     reg spi_ss;
-    reg spi_miso;
-    reg user_led;
+    wire spi_miso;
+    wire user_led;
 
-    reg [31:0] input_image [64 * 32];
+    reg [31:0] input_image [2047:0];
+
 
     localparam period = 1;
 
@@ -68,8 +69,8 @@ module tb #(BITS_PER_PIXEL=0);
         spi_ss = 1'b0;
 
         // Feed the image in with SS set to 0
-        for (write_pixel_count = 0; write_pixel_count < 64 * 32; write_pixel_count++) begin
-            for (write_bit_count = 0; write_bit_count < 32; write_bit_count++) begin
+        for (write_pixel_count = 0; write_pixel_count < 64 * 32; write_pixel_count= write_pixel_count+1) begin
+            for (write_bit_count = 0; write_bit_count < 32; write_bit_count=write_bit_count+1) begin
                 #period;
                 spi_clk = 1'b0;
                 spi_mosi = input_image[write_pixel_count][31 - write_bit_count];
@@ -95,9 +96,9 @@ module tb #(BITS_PER_PIXEL=0);
     end
 
     reg [5:0] this_line_x = 6'b000000;
-    reg [1:0] this_line_red[64];
-    reg [1:0] this_line_green[64];
-    reg [1:0] this_line_blue[64];
+    reg [1:0] this_line_red[63:0];
+    reg [1:0] this_line_green[63:0];
+    reg [1:0] this_line_blue[63:0];
 
     // Pull in the individual rows into a local buffer (top and bottom at the same time)
     always @ (posedge hub75_clk) begin
@@ -107,14 +108,14 @@ module tb #(BITS_PER_PIXEL=0);
         this_line_x <= this_line_x + 6'b000001;
     end
 
-    reg [1:0] latched_line_red[64];
-    reg [1:0] latched_line_green[64];
-    reg [1:0] latched_line_blue[64];
-
+    reg [1:0] latched_line_red[63:0];
+    reg [1:0] latched_line_green[63:0];
+    reg [1:0] latched_line_blue[63:0];
+    integer x_count;
     // Copy the current line into the latched line on the latched clock edge
     always @ (posedge clk) begin
         if (hub75_latch == 1'b1) begin
-            for (integer x_count = 0; x_count < 64; x_count++) begin
+            for ( x_count = 0; x_count < 64; x_count=x_count+1) begin
                 latched_line_red[x_count] <= this_line_red[x_count];
                 latched_line_green[x_count] <= this_line_green[x_count];
                 latched_line_blue[x_count] <= this_line_blue[x_count];
@@ -122,25 +123,25 @@ module tb #(BITS_PER_PIXEL=0);
         end
     end
 
-    integer screen_red[64][32];
-    integer screen_green[64][32];
-    integer screen_blue[64][32];
-
+    integer screen_red[63:0][31:0];
+    integer screen_green[63:0][31:0];
+    integer screen_blue[63:0][31:0];
+    integer y_count, x_count;
     // Must init the screen memory as we add to it through the frame
     initial begin
-        for (integer y_count = 0; y_count < 32; y_count++) begin
-            for (integer x_count = 0; x_count < 64; x_count++) begin
+        for (y_count = 0; y_count < 32; y_count=y_count+1) begin
+            for (x_count = 0; x_count < 64; x_count=x_count+1) begin
                 screen_red[x_count][y_count] = 0;
                 screen_green[x_count][y_count] = 0;
                 screen_blue[x_count][y_count] = 0;
             end
         end
     end
-
+integer x_count;
     always @ (posedge clk) begin
         if (hub75_oe == 1'b0) begin
             // Sum up the intensities when the Output Enable input is asserted
-            for (integer x_count = 0; x_count < 64; x_count++) begin
+            for (x_count = 0; x_count < 64; x_count=x_count+1) begin
                 if (latched_line_red[x_count][0] == 1'b1) begin
                     screen_red[x_count][{1'b0, hub75_addr}] = screen_red[x_count][{1'b0, hub75_addr}] + 1;
                 end
@@ -162,11 +163,11 @@ module tb #(BITS_PER_PIXEL=0);
             end
         end
     end
-
+integer y_count,x_count  ;
     // Watch for the top addr bit going low, this indicates the end of the frame
     always @ (negedge hub75_addr[3]) begin
-        for (integer y_count = 0; y_count < 32; y_count++) begin
-            for (integer x_count = 0; x_count < 64; x_count++) begin
+        for (y_count = 0; y_count < 32; y_count=y_count+1) begin
+            for (x_count = 0; x_count < 64; x_count= x_count+1) begin
                 // Output the RGB of each pixel in unscaled form, which will turn back into a BMP by scaling
                 // such that the maximum intensity of any pixels R, G or B will be 255
                 $display("%0d,%0d,%0d", screen_red[x_count][y_count], screen_green[x_count][y_count],

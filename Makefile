@@ -19,7 +19,7 @@ endif
 build/controller.json:
 	yosys -p 'chparam -set BITS_PER_PIXEL $(BITS_PER_PIXEL);' \
 		-p 'read_verilog controller.v sync_pdp_ram.v spi_slave.v;' \
-		-p 'synth_ice40  -top controller -abc9 -json $@' $^
+		-p 'synth_ecp5  -top controller -abc9 -json $@' $^
 build/blink.config: build/controller.json $(LPF)
 	nextpnr-ecp5 --25k --package $(PACKAGE) --speed 6 --lpf $(LFP) --json build/controller.json --textcfg build/blink.config --freq 25
 

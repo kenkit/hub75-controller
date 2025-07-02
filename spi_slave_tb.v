@@ -1,4 +1,4 @@
-module tb;
+module   spi_slave_tb;
     parameter BITS_PER_PIXEL = 32;
 
     reg reset;
@@ -33,7 +33,7 @@ module tb;
         reset = 1'b0;
 
         #period
-        for (bit_counter = 0; bit_counter < 32+32+32; bit_counter++) begin
+        for (bit_counter = 0; bit_counter < 32+32+32; bit_counter=bit_counter+1) begin
             spi_clk = 1'b0;
             spi_mosi = test_input[32+32+32 - 1 - bit_counter];
             #period;
