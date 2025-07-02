@@ -25,7 +25,7 @@ build/blink.config: build/controller.json $(LPF)
 
 build/blink.svf: build/blink.config
 	ecppack --compress --verbose --input $< --svf $@
-	sed -i '27s/.*/	TDO  (0601f10)/' $@
+	sed -i '27s/.*/		TDO  (0601f10)/' $@
 
 jtag_svf: build/blink.svf
 	openocd -f colorlight_5a75b.cfg -c "svf -progress $<; exit"
