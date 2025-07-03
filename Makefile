@@ -2,9 +2,19 @@ all: build/blink.svf build/blink.bit build/controller.json
 # Configuration
 BITS_PER_PIXEL = 16
 
+IVERILOG = iverilog -g 2012 -g io-range-error -Wall -Ptb.BITS_PER_PIXEL=$(BITS_PER_PIXEL)
+VVP = vvp
 
-SYNTH_SRCS=controller.v sync_pdp_ram.v spi_slave.v
-SIM_SRCS=blink_tb.v blink.v 
+YOSYS = yosys
+PIN_DEF = constraints.pcf
+DEVICE = up5k
+
+NEXTPNR = nextpnr-ecp5 
+ICEPACK = icepack
+ICETIME = icetime
+ICEPROG = iceprog
+
+VERILATOR_LINT = verilator --lint-only --timing -GBITS_PER_PIXEL=$(BITS_PER_PIXEL)
 
 ifndef V70
 	//PACKAGE=CABGA381
@@ -16,8 +26,31 @@ else
     LFP=top.lpf
 endif
 
+build/sync_pdp_ram: sync_pdp_ram.v sync_pdp_ram_tb.v
+	$(VERILATOR_LINT) $^
+	$(IVERILOG) -o $@ $^
+build/spi_slave: spi_slave.v spi_slave_tb.v
+	$(VERILATOR_LINT) $^
+	$(IVERILOG) -o $@ $^
+build/controller: controller.v controller_tb.v sync_pdp_ram.v spi_slave.v
+	$(VERILATOR_LINT) $^
+	$(IVERILOG) -o $@ $^
+
+build/sync_pdp_ram-tests: build/sync_pdp_ram
+	cd build
+	$(VVP) build/sync_pdp_ram
+build/spi_slave-tests: build/spi_slave
+	cd build
+	$(VVP) build/spi_slave
+build/controller-tests: build/controller
+	cd build
+	$(VVP) build/controller
+
+tests: build/sync_pdp_ram-tests build/spi_slave-tests build/controller-tests
+
+
 build/controller.json:
-	yosys -p 'chparam -set BITS_PER_PIXEL $(BITS_PER_PIXEL);' \
+	$(YOSYS) -p 'chparam -set BITS_PER_PIXEL $(BITS_PER_PIXEL);' \
 		-p 'read_verilog controller.v sync_pdp_ram.v spi_slave.v;' \
 		-p 'synth_ecp5  -top controller -abc9 -json $@' $^
 build/blink.config: build/controller.json $(LPF)
@@ -40,7 +73,7 @@ flash_sram: build/blink.svf
 	openocd -f colorlight_5a75b.cfg -c "svf -progress $<; exit"
 	#openFPGALoader -b colorlight -c usb-blaster --write-sram build/blink.bit --skip-reset
 visual:
-	yosys -p 'read_verilog $(SYNTH_SRCS); synth ; show -colors 1 -format dot -prefix diagram'
+	$(YOSYS)  -p 'read_verilog $(SYNTH_SRCS); synth ; show -colors 1 -format dot -prefix diagram'
 
 flash_backup:
 	#ecpprog -R 2M colorlight_backup.bit

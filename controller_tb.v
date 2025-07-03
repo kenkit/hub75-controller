@@ -39,7 +39,7 @@ module  controller_tb #(BITS_PER_PIXEL=32);
     );
 
     initial begin
-        $dumpfile("controller.vcd");
+        $dumpfile("build/controller.vcd");
         $dumpvars();
 
         n_reset = 1'b1;
@@ -111,7 +111,7 @@ module  controller_tb #(BITS_PER_PIXEL=32);
     reg [1:0] latched_line_red[63:0];
     reg [1:0] latched_line_green[63:0];
     reg [1:0] latched_line_blue[63:0];
-    integer x_count;
+    integer y_count=0,x_count=0;
     // Copy the current line into the latched line on the latched clock edge
     always @ (posedge clk) begin
         if (hub75_latch == 1'b1) begin
@@ -126,7 +126,7 @@ module  controller_tb #(BITS_PER_PIXEL=32);
     integer screen_red[63:0][31:0];
     integer screen_green[63:0][31:0];
     integer screen_blue[63:0][31:0];
-    integer y_count, x_count;
+  
     // Must init the screen memory as we add to it through the frame
     initial begin
         for (y_count = 0; y_count < 32; y_count=y_count+1) begin
@@ -137,7 +137,7 @@ module  controller_tb #(BITS_PER_PIXEL=32);
             end
         end
     end
-integer x_count;
+
     always @ (posedge clk) begin
         if (hub75_oe == 1'b0) begin
             // Sum up the intensities when the Output Enable input is asserted
@@ -163,7 +163,6 @@ integer x_count;
             end
         end
     end
-integer y_count=0,x_count=0;
     // Watch for the top addr bit going low, this indicates the end of the frame
     always @ (negedge hub75_addr[3]) begin
         for (y_count = 0; y_count < 32; y_count=y_count+1) begin

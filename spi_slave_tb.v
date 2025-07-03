@@ -19,7 +19,7 @@ module   spi_slave_tb;
     integer bit_counter;
 
     initial begin
-        $dumpfile("spi_slave.vcd");
+        $dumpfile("build/spi_slave.vcd");
         $dumpvars();
 
         reset = 1'b0;
