@@ -21,8 +21,13 @@ I'm currently clocking the SPI side at 10MHz, with the master reading clock at 5
 Whilst the host to controller image format is fixed at 64 x 32 at 32bpp, the image format used internally is configurable via the Makefile's only config option: BITS_PER_PIXEL. I use 16bpp, as this is the largest bit depth that will fit in the iCE40UP5 block RAM on my display interface board. The SPI component is responsible for discarding the lower bits from each byte received.
 
 A fairly complete set of tests has been produced including one which will drive the controller for a single frame. The output from this test can be fed into the unscaled-to-image Go script to produce a BMP file of the output. Another Go script, image-to-raw, can be used to turn a BMP into a data file for feeding to the controller testbench. Tests are also available for the SPI slave interface and the dual port video memory.
+# WaveForm
 
 ![Test waveforms](images/hub75-waveform.png)
+
+# Vivado preview
+
+![Vivado Tests](images/vivado_waveform.png)
 
 The above gives a very high level overview of the mechanism behind the display. Starting form the left, you can see the last few pixels being clocked in over the SPI bus. After the Slave Select line is toggled, the output clock is started and the controller clocks out the first PWM'd row of pixels. You can see that after a row of pixels is clocked out, it is latched and the Output Enable stobe line is lowered. The same row is output four times, with an increasing long OE strobe. This is the PWM action: for each bit of the four that need to be shown a doubling of the OE strobe length needs to occur. The length of these OE pulses dictates the intensity of the line of pixels, but the tradeoff is the longer each line is shown the more the screen will flicker. The code presented here is tuned, by at least my own eyes, to a 50MHz master clock and it yields a flicker free image which is nice and bright.
 
