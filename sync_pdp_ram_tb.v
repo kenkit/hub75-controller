@@ -14,7 +14,7 @@ module sync_pdp_ram_tb;
     reg read_en;
 
     integer i;
-    reg [BITS_PER_PIXEL-1:0] input_image [64 * 32];
+    reg [BITS_PER_PIXEL-1:0] input_image [64 * 32:0];
 
     localparam period = 1;
 

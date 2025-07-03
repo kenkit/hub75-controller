@@ -1,4 +1,4 @@
-module  controller_tb #(BITS_PER_PIXEL=0);
+module  controller_tb #(BITS_PER_PIXEL=32);
     reg n_reset;
     reg clk;
     wire [1:0] hub75_red;
@@ -61,7 +61,7 @@ module  controller_tb #(BITS_PER_PIXEL=0);
 
     initial begin
         // Must be the 32bbp input image
-        $readmemh("test-bars-32.txt", input_image);
+        $readmemh("test-bars-32.mem", input_image);
 
         // Wait for the intial state to be done
         #(period * 10);
