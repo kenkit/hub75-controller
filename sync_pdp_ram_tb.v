@@ -27,6 +27,8 @@ module sync_pdp_ram_tb;
     reg [20*8:0] test_bars_filename;
 
     initial begin
+        $dumpfile("build/sync_pdp_ram.vcd");
+        $dumpvars();
         buffer_toggle = 1'b0;
         write_clk = 1'b0;
         write_addr = 11'b0;
@@ -36,7 +38,7 @@ module sync_pdp_ram_tb;
         read_addr = 10'b0;
         read_en = 1'b0;
 
-        $sformat(test_bars_filename, "test-bars-%0d.txt", BITS_PER_PIXEL);
+        $sformat(test_bars_filename, "test-bars-%0d.mem", BITS_PER_PIXEL);
         $readmemh(test_bars_filename, input_image);
 
         write_en = 1;
