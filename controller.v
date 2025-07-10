@@ -1,6 +1,6 @@
 module controller #(parameter BITS_PER_PIXEL=16)
     (
-        input n_reset,
+        input n_reset,// Active-low reset (pulled to ground to reset)
         input clk,
         output reg [1:0] hub75_red,
         output reg [1:0] hub75_green,
@@ -153,7 +153,10 @@ module controller #(parameter BITS_PER_PIXEL=16)
 
     // So the LED can be used to show that the FPGA has a design loaded
     reg [23:0] counter = 24'h000000;
-    always @ (posedge slow_clk) begin
+    always @ (posedge slow_clk, posedge reset) begin
+        if (reset == 1'b1)
+            counter <= 24'h000000;
+        else                        
         counter <= counter + 24'd1;
     end
     assign user_led = counter[23];

@@ -4,14 +4,16 @@ LOCATE COMP "clk"         SITE "P6";
 FREQUENCY PORT "clk" 25.000000 MHz ;
 LOCATE COMP "user_led" SITE "T6" ;
 IOBUF PORT "user_led" IO_TYPE=LVCMOS33 ;
-LOCATE COMP "spi_clk" SITE "G16" ;
+
+LOCATE COMP "spi_clk" SITE "G16" ;//orange
 IOBUF PORT "spi_clk" IO_TYPE=LVCMOS33 ;
-LOCATE COMP "spi_mosi" SITE "H14" ;
+LOCATE COMP "spi_mosi" SITE "H14" ;//blue
 IOBUF PORT "spi_mosi" IO_TYPE=LVCMOS33 ;
-LOCATE COMP "spi_miso" SITE "G15" ;
+LOCATE COMP "spi_miso" SITE "G15" ;//green
 IOBUF PORT "spi_miso" IO_TYPE=LVCMOS33 ;
-LOCATE COMP "spi_ss" SITE "F15" ;
+LOCATE COMP "spi_ss" SITE "F15" ;//yellow
 IOBUF PORT "spi_ss" IO_TYPE=LVCMOS33 ;
+
 LOCATE COMP "hub75_red[0]" SITE "F1" ;
 IOBUF PORT "hub75_red[0]" IO_TYPE=LVCMOS33 ;
 LOCATE COMP "hub75_green[0]" SITE "F2" ;
