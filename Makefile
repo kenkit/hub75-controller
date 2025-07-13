@@ -1,5 +1,6 @@
-all: build/blink.svf build/blink.bit build/controller.json
+all: build build/blink.svf build/blink.bit build/controller.json
 # Configuration
+
 BITS_PER_PIXEL = 16
 BOARD ?= ice40
 IVERILOG = iverilog -g 2012 -g io-range-error -Wall -Ptb.BITS_PER_PIXEL=$(BITS_PER_PIXEL)
@@ -31,6 +32,9 @@ else
 	SYNTH=synth_ice40 
 	PACK = icepack
 endif
+
+build:
+	mkdir -p build
 
 build/sync_pdp_ram: sync_pdp_ram.v sync_pdp_ram_tb.v
 	$(VERILATOR_LINT) $^
