@@ -42,7 +42,7 @@ The following tools are used by the Makefile. The assumption is you'll be wantin
 
 If you are interested in running the Go test tools, you'll obviously need Go installed.
 
-Use `BOARD=Colorlight make` to produce the bitstream image and flash it using your tool of choice.
+Running `make` will by default generate ice40 bitstream. For colorlight board you can use `BOARD=Colorlight make` to produce the bitstream image and flash it using your tool of choice, other boards are supported so you have to edit the makefile accordingly.
 
 Or if you use openocd and a colorlight `make flash_sram` will program to the sram, if you want to permanently program the flash with openFPGALoader you can use  `make flash` this will permanently program your spi flash.
 
