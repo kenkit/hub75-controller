@@ -10,6 +10,8 @@ It is used by my [matrix-display](https://github.com/aslak3/matrix-display) proj
 
 In terms of FPGAs used, my board uses an [iCE40UP5](https://www.latticesemi.com/en/Products/FPGAandCPLD/iCE40UltraPlus) in QFN48 and the constraints.pcf file reflects this, which will shortly be documented in its own repo. The Open Source lattice tools, critically [yosys](https://github.com/YosysHQ/yosys) and [nextpnr](https://github.com/YosysHQ/nextpnr), are used to produce the bitstream.
 
+The fpga controller has also been tested to work on the colorlight [5a-75b](https://github.com/q3k/chubby75/blob/master/5a-75b/hardware_V8.2.md) board with with aliexpress panel [P5(2121)-3264-16S-M5](https://www.aliexpress.com/item/1005006042450009.html) check build instructions on how to build. The code should be compatible with other ecp5 fpags. 
+
 The protocol used between the host controller/computer and the HUB75 controller is SPI. The image format is currently fixed at 64 x 32 pixels, with 32 bits per pixel in the form RGBx, where the last byte in the quad is not used. Data is latched on the rising clock. Naturally scanning should start at the top left pixel and extend line by line.
 
 The controller uses a pseudo dual port RAM to hold the image to display: the writing side is attached to the SPI slave controller with the HUB75 signals being derived from the outputs of the reading side. This RAM is inferred by the code. At 16bpp, 64Kbit of Block RAM is required; 64 x 32 x 16 per frame, and two frames need to be held because  he RAM is configured in a double buffered arrangement.
