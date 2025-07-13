@@ -46,7 +46,7 @@ Running `make` will by default generate ice40 bitstream. For colorlight board yo
 
 Or if you use openocd and a colorlight `make flash_sram` will program to the sram, if you want to permanently program the flash with openFPGALoader you can use  `make flash` this will permanently program your spi flash.
 
-Use something like `make controller-tests | (cd tools/unscaled-to-image/ && go run . --output-filename image.bmp)` to run the controller tests and generate a BMP of the test image file.
+Use something like `make build/controller-tests | (cd tools/unscaled-to-image/ && go run . --output-filename image.bmp)` to run the controller tests and generate a BMP of the test image file.
 
 ## Related projects
 
