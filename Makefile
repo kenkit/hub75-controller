@@ -1,7 +1,7 @@
 all: build/blink.svf build/blink.bit build/controller.json
 # Configuration
 BITS_PER_PIXEL = 16
-
+BOARD ?= ice40
 IVERILOG = iverilog -g 2012 -g io-range-error -Wall -Ptb.BITS_PER_PIXEL=$(BITS_PER_PIXEL)
 VVP = vvp
 
@@ -9,21 +9,27 @@ YOSYS = yosys
 PIN_DEF = constraints.pcf
 DEVICE = up5k
 
-NEXTPNR = nextpnr-ecp5 
-ICEPACK = icepack
+
+
 ICETIME = icetime
 ICEPROG = iceprog
 
 VERILATOR_LINT = verilator --lint-only --timing -GBITS_PER_PIXEL=$(BITS_PER_PIXEL)
 
-ifndef V70
-	//PACKAGE=CABGA381
-    //LFP=blink_v61.lpf
-		PACKAGE=CABGA256
-    LFP=top.lpf
+ifeq ($(BOARD), Colorlight)
+	NEXTPNR = nextpnr-ecp5 
+	PACKAGE= CABGA256
+	LUT=25k
+    LFP=Colorlight.lpf
+	SYNTH=synth_ecp5
+	PACK = ecppack
 else
-	PACKAGE=CABGA256
-    LFP=top.lpf
+	NEXTPNR = nextpnr-ice40
+	PACKAGE= sg48 
+	LUT=up5k
+    LFP=constraints.pcf
+	SYNTH=synth_ice40 
+	PACK = icepack
 endif
 
 build/sync_pdp_ram: sync_pdp_ram.v sync_pdp_ram_tb.v
@@ -52,20 +58,29 @@ tests: build/sync_pdp_ram-tests build/spi_slave-tests build/controller-tests
 build/controller.json:
 	$(YOSYS) -p 'chparam -set BITS_PER_PIXEL $(BITS_PER_PIXEL);' \
 		-p 'read_verilog controller.v sync_pdp_ram.v spi_slave.v;' \
-		-p 'synth_ecp5  -top controller -abc9 -json $@' $^
-build/blink.config: build/controller.json $(LPF)
-	nextpnr-ecp5 --25k --package $(PACKAGE) --speed 6 --lpf $(LFP) --json build/controller.json --textcfg build/blink.config --freq 25
+		-p '${SYNTH}  -top controller -abc9 -json $@' $^
+build/blink.config: build/controller.json 
+ifeq ($(BOARD), Colorlight)
+	$(NEXTPNR) --${LUT} --package $(PACKAGE) --speed 6 --lpf $(LFP) --json $< --textcfg build/blink.config --freq 25
+else
+	$(NEXTPNR) --${LUT} --package $(PACKAGE) --pcf $(LFP) --json $< --asc build/build.asc
+endif
 
 build/blink.svf: build/blink.config
-	ecppack --compress --verbose --input $< --svf $@
-	sed -i '27s/.*/		TDO  (0601f10)/' $@
+ifeq ($(BOARD), Colorlight)
+		$(PACK)  --compress --verbose --input $< --svf $@
+		sed -i '27s/.*/		TDO  (0601f10)/' $@
+else
+		$(PACK) build/build.asc  build/controller.bin
+endif
 
 jtag_svf: build/blink.svf
 	openocd -f colorlight_5a75b.cfg -c "svf -progress $<; exit"
 
 build/blink.bit: build/blink.config
+ifeq ($(BOARD), Colorlight)
 	ecppack --compress --input $< --bit $@
-
+endif
 flash: build/blink.bit
 	# ERASES THE DEFAULT CONTENTS OF THE SPI FLASH!
 	openFPGALoader --vid 0x0403 --pid 0x6014 --unprotect-flash -f build/blink.bit
