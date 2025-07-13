@@ -1,4 +1,4 @@
-all: build build/blink.svf build/blink.bit build/controller.json
+all: build build/controller.svf build/controller.bit build/controller.json
 # Configuration
 
 BITS_PER_PIXEL = 16
@@ -70,27 +70,27 @@ else
 	$(NEXTPNR) --${LUT} --package $(PACKAGE) --pcf $(LFP) --json $< --asc build/build.asc
 endif
 
-build/blink.svf: build/blink.config
+build/controller.svf: build/blink.config
 ifeq ($(BOARD), Colorlight)
 		$(PACK)  --compress --verbose --input $< --svf $@
 		sed -i '27s/.*/		TDO  (0601f10)/' $@
 else
-		$(PACK) build/build.asc  build/controller.bin
+		$(PACK) build/build.asc  build/controller.bit
 endif
 
-jtag_svf: build/blink.svf
+jtag_svf: build/controller.svf
 	openocd -f colorlight_5a75b.cfg -c "svf -progress $<; exit"
 
-build/blink.bit: build/blink.config
+build/controller.bit: build/blink.config
 ifeq ($(BOARD), Colorlight)
 	ecppack --compress --input $< --bit $@
 endif
-flash: build/blink.bit
+flash: build/controller.bit
 	# ERASES THE DEFAULT CONTENTS OF THE SPI FLASH!
-	openFPGALoader -b colorlight -c usb-blaster --unprotect-flash -f build/blink.bit
-flash_sram: build/blink.svf
+	openFPGALoader -b colorlight -c usb-blaster --unprotect-flash -f $<
+flash_sram: build/controller.svf
 	openocd -f colorlight_5a75b.cfg -c "svf -progress $<; exit"
-	#openFPGALoader -b colorlight -c usb-blaster --write-sram build/blink.bit --skip-reset
+	#openFPGALoader -b colorlight -c usb-blaster --write-sram build/controller.bit --skip-reset
 visual:
 	$(YOSYS)  -p 'read_verilog $(SYNTH_SRCS); synth ; show -colors 1 -format dot -prefix diagram'
 
