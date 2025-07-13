@@ -42,7 +42,9 @@ The following tools are used by the Makefile. The assumption is you'll be wantin
 
 If you are interested in running the Go test tools, you'll obviously need Go installed.
 
-Use `make controller.bin` to produce the bitstream image and flash it using your tool of choice.
+Use `BOARD=Colorlight make` to produce the bitstream image and flash it using your tool of choice.
+
+Or if you use openocd and a colorlight `make flash_sram` will program to the sram, if you want to permanently program the flash with openFPGALoader you can use  `make flash` this will permanently program your spi flash.
 
 Use something like `make controller-tests | (cd tools/unscaled-to-image/ && go run . --output-filename image.bmp)` to run the controller tests and generate a BMP of the test image file.
 

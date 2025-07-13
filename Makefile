@@ -83,7 +83,7 @@ ifeq ($(BOARD), Colorlight)
 endif
 flash: build/blink.bit
 	# ERASES THE DEFAULT CONTENTS OF THE SPI FLASH!
-	openFPGALoader --vid 0x0403 --pid 0x6014 --unprotect-flash -f build/blink.bit
+	openFPGALoader -b colorlight -c usb-blaster --unprotect-flash -f build/blink.bit
 flash_sram: build/blink.svf
 	openocd -f colorlight_5a75b.cfg -c "svf -progress $<; exit"
 	#openFPGALoader -b colorlight -c usb-blaster --write-sram build/blink.bit --skip-reset
